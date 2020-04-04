@@ -19,6 +19,20 @@
 ## @start 1
 #! /bin/sh
 
+progs="autoconf automake make"
+
+unset result
+for p in ${progs}; do
+	if ! command -v "${p}" > /dev/null; then
+		echo "Please install ${p}"
+		result=1
+	fi
+done
+
+if [ -n "${result}" ]; then
+	exit 1
+fi
+
 set -x
 aclocal -I config
 autoheader
