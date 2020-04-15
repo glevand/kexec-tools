@@ -125,7 +125,6 @@ static unsigned propnum(const char *name)
 static void add_usable_mem_property(int fd, int len)
 {
 	char fname[MAXPATH], *bname;
-	unsigned long buf[2];
 	unsigned long ranges[2*MAX_MEMORY_RANGES];
 	unsigned long long base, end, loc_base, loc_end;
 	int range, rlen = 0;
@@ -292,10 +291,11 @@ static void putprops(char *fn, struct dirent **nlist, int numlist)
  * Compare function used to sort the device-tree directories
  * This function will be passed to scandir.
  */
-static int comparefunc(const void *dentry1, const void *dentry2)
+static int comparefunc(const struct dirent **dentry1,
+	const struct dirent **dentry2)
 {
-	char *str1 = (*(struct dirent **)dentry1)->d_name;
-	char *str2 = (*(struct dirent **)dentry2)->d_name;
+	const char *str1 = (*dentry1)->d_name;
+	const char *str2 = (*dentry2)->d_name;
 	char *p1, *p2;
 	int res = 0, max_len;
 
@@ -335,7 +335,7 @@ static void putnode(void)
 	int numlist, i;
 	struct stat statbuf;
 
-	numlist = scandir(pathname, &namelist, 0, comparefunc);
+	numlist = scandir(pathname, &namelist, 0, &comparefunc);
 	if (numlist < 0)
 		die("unrecoverable error: could not scan \"%s\": %s\n",
 		    pathname, strerror(errno));

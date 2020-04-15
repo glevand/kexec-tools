@@ -6,6 +6,7 @@
  * Version 2.  See the file COPYING for more details.
  */
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <errno.h>
@@ -109,7 +110,7 @@ int read_memory_region_limits(int fd, unsigned long long *start,
 		p++;
 	} else if (dt_address_cells == sizeof(unsigned long long)) {
 		*start = ((unsigned long long *)p)[0];
-		p = (unsigned long long *)p + 1;
+		p = (unsigned long*)((unsigned long long *)p + 1);
 	} else {
 		fprintf(stderr, "Unsupported value for #address-cells : %ld\n",
 					dt_address_cells);
@@ -318,10 +319,9 @@ static int get_base_ranges(void)
 	int local_memory_ranges = 0;
 	char device_tree[256] = "/proc/device-tree/";
 	char fname[256];
-	char buf[MAXBYTES];
 	DIR *dir, *dmem;
 	struct dirent *dentry, *mentry;
-	int n, fd;
+	int fd;
 
 	if ((dir = opendir(device_tree)) == NULL) {
 		perror(device_tree);
@@ -465,6 +465,7 @@ static int get_devtree_details(unsigned long kexec_flags)
 	FILE *file;
 	struct dirent *dentry;
 	int n, i = 0;
+	int bytes;
 
 	if ((dir = opendir(device_tree)) == NULL) {
 		perror(device_tree);
@@ -515,9 +516,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 				if (i >= max_memory_ranges)
 					realloc_memory_ranges();
 				memset(fname, 0, sizeof(fname));
-				sprintf(fname, "%s%s%s",
+				bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 					device_tree, dentry->d_name,
 					"/linux,crashkernel-base");
+				assert(bytes >= 0);
 				file = fopen(fname, "r");
 				if (!file) {
 					perror(fname);
@@ -538,9 +540,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 				fclose(file);
 
 				memset(fname, 0, sizeof(fname));
-				sprintf(fname, "%s%s%s",
+				bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 					device_tree, dentry->d_name,
 					"/linux,crashkernel-size");
+				assert(bytes >= 0);
 				file = fopen(fname, "r");
 				if (!file) {
 					perror(fname);
@@ -581,16 +584,18 @@ static int get_devtree_details(unsigned long kexec_flags)
 			 * reflecting value for the same.
 			 */
 			memset(fname, 0, sizeof(fname));
-			snprintf(fname, sizeof(fname), "%s%s%s", device_tree,
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s", device_tree,
 				dentry->d_name, "/linux,memory-limit");
+			assert(bytes >= 0);
 			if (read_kernel_memory_limit(fname, buf) < 0)
 				goto error_opencdir;
 
 			/* reserve the initrd_start and end locations. */
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,initrd-start");
+			assert(bytes >= 0);
 			file = fopen(fname, "r");
 			if (!file) {
 				errno = 0;
@@ -612,9 +617,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 			}
 
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,initrd-end");
+			assert(bytes >= 0);
 			file = fopen(fname, "r");
 			if (!file) {
 				errno = 0;
@@ -651,9 +657,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 
 			/* HTAB */
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,htab-base");
+			assert(bytes >= 0);
 			file = fopen(fname, "r");
 			if (!file) {
 				closedir(cdir);
@@ -671,9 +678,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 				goto error_openfile;
 			}
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,htab-size");
+			assert(bytes >= 0);
 			file = fopen(fname, "r");
 			if (!file) {
 				perror(fname);
@@ -704,9 +712,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 				goto error_openfile;
 			}
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,rtas-size");
+			assert(bytes >= 0);
 			if ((file = fopen(fname, "r")) == NULL) {
 				perror(fname);
 				goto error_opencdir;
@@ -762,9 +771,10 @@ static int get_devtree_details(unsigned long kexec_flags)
 				goto error_openfile;
 			}
 			memset(fname, 0, sizeof(fname));
-			sprintf(fname, "%s%s%s",
+			bytes = snprintf(fname, sizeof(fname), "%s%s%s",
 				device_tree, dentry->d_name,
 				"/linux,tce-size");
+			assert(bytes >= 0);
 			file = fopen(fname, "r");
 			if (!file) {
 				perror(fname);

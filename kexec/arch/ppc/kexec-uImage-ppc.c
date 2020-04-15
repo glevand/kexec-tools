@@ -51,7 +51,7 @@ void uImage_ppc_usage(void)
  *  If the supplied image is in uImage format use
  *  uImage_load() to read the payload from the image.
  */
-char *slurp_ramdisk_ppc(const char *filename, off_t *r_size)
+const char *slurp_ramdisk_ppc(const char *filename, off_t *r_size)
 {
 	struct Image_info img;
 	off_t size;
@@ -97,7 +97,7 @@ static int ppc_load_bare_bits(int argc, char **argv, const char *buf,
 	int cur_fixup = 0;
 	int opt;
 	int ret = 0;
-	char *seg_buf = NULL;
+	const char *seg_buf = NULL;
 	off_t seg_size = 0;
 	unsigned long long hole_addr;
 	unsigned long max_addr;

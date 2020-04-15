@@ -676,8 +676,7 @@ static void putnode(void)
 		assert(bytes > 0);
 		fd = open(filename, O_RDONLY);
 		if (fd == -1) {
-			bytes = snprintf(filename, MAXPATH,
-				"%slinux,stdout-path", pathname);
+			bytes = snprintf(filename, MAXPATH - 17, "%slinux,stdout-path", pathname);
 			assert(bytes > 0);
 			fd = open(filename, O_RDONLY);
 			if (fd == -1) {

@@ -82,5 +82,5 @@ extern int get_devtree_value(const char *fname, unsigned long long *pvalue);
 void reserve(unsigned long long where, unsigned long long length);
 
 /* Defined kexec-uImage-ppc.c */
-extern char* slurp_ramdisk_ppc(const char *filename, off_t *r_size);
+extern const char* slurp_ramdisk_ppc(const char *filename, off_t *r_size);
 #endif /* KEXEC_PPC_H */

@@ -177,7 +177,7 @@ int elf_ppc_load(int argc, char **argv,	const char *buf, off_t len,
 	unsigned char *setup_start;
 	uint32_t setup_size;
 #else
-	char *seg_buf = NULL;
+	const char *seg_buf = NULL;
 	off_t seg_size = 0;
 	int target_is_gamecube = 0;
 	unsigned int addr;
@@ -251,11 +251,13 @@ int elf_ppc_load(int argc, char **argv,	const char *buf, off_t len,
 		goto out;
 	}
 
-#ifdef WITH_GAMECUBE
 	if (target_is_gamecube) {
+#ifdef WITH_GAMECUBE
 		gamecube_hack_addresses(&ehdr);
-	}
+#else
+		(void)0;
 #endif
+	}
 
 	/* Load the Elf data. Physical load addresses in elf64 header do not
 	 * show up correctly. Use user supplied address for now to patch the
