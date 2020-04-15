@@ -137,8 +137,6 @@ static char *expand_buf(int minexpand, char *blob_buf, off_t *blob_size)
 static void fixup_reserve_regions(struct kexec_info *info, char *blob_buf)
 {
 	int ret, i;
-	int nodeoffset;
-	u64 val = 0;
 
 	/* If this is a KEXEC kernel we add all regions since they will
 	 * all need to be saved */
@@ -171,6 +169,9 @@ static void fixup_reserve_regions(struct kexec_info *info, char *blob_buf)
 	}
 
 #if 0
+	int nodeoffset;
+	u64 val = 0;
+
 	/* XXX: Do not reserve spin-table for CPUs. */
 
 	/* Add reserve regions for cpu-release-addr */
