@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <assert.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -637,6 +638,7 @@ static void putnode(void)
 		char filename[MAXPATH];
 		char *buff;
 		int fd;
+		int bytes;
 
 		cmd_len = strlen(local_cmdline);
 		if (cmd_len != 0) {
@@ -670,10 +672,13 @@ static void putnode(void)
 		 * code can print 'I'm in purgatory' message. Currently only
 		 * pseries/hvcterminal is supported.
 		 */
-		snprintf(filename, MAXPATH, "%sstdout-path", pathname);
+		bytes = snprintf(filename, MAXPATH, "%sstdout-path", pathname);
+		assert(bytes > 0);
 		fd = open(filename, O_RDONLY);
 		if (fd == -1) {
-			snprintf(filename, MAXPATH, "%slinux,stdout-path", pathname);
+			bytes = snprintf(filename, MAXPATH,
+				"%slinux,stdout-path", pathname);
+			assert(bytes > 0);
 			fd = open(filename, O_RDONLY);
 			if (fd == -1) {
 				printf("Unable to find %s[linux,]stdout-path, printing from purgatory is disabled\n",
